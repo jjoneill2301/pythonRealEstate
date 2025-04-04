@@ -5,6 +5,7 @@ Real estate calculators for various uses.
 Takes in a comma delimited file and creates a list of data out of it to then be looped through and added to three different dictionaries.
 Each key is city/zip/property type and each value is the corresponding price
 Simply loop through each and println before providing calculations for:
+
 Minimum:
 
 Maximum:
