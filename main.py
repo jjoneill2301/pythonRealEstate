@@ -1,65 +1,71 @@
-import csv
-from math import fsum
+import inputPromptValidationModule as validate
 
+# Constants (Made a yes no tuple, also made it a global because its immutable
+# Let me know if I should try to not make a habit of this or if this is okay
+tplYES_NO_TUPLE = ("Y", "N")
+fCOMMISSION_PERCENTAGE = 0.03
 
-# CASE from bulk file reading videos
-def getDataInput():
-    with open('RealEstateData.csv', 'r') as f:
-        reader = csv.reader(f)
-        # Make a list out of each row of data skipping the header
-        data = [row for row in reader][1:]
-        return data
+# Create median function
+def getMedian(lstPropertyPrices):
+    # if odd
+    if len(lstPropertyPrices) % 2 == 1:
+        iMedian = int(len(lstPropertyPrices) / 2)
+        calculatedMedian = lstPropertyPrices[iMedian]
 
+    # if even
+    if len(lstPropertyPrices) % 2 == 0:
+        iMedian1 = int(len(lstPropertyPrices) // 2)
+        iMedian2 = int(len(lstPropertyPrices) // 2) - 1
+        calculatedMedian = (lstPropertyPrices[iMedian1] + lstPropertyPrices[iMedian2]) / 2
 
-# CASE median function from previous project
-def getMedian(number):
-    # if for odd numbers, else for even
-    if len(number) % 2 == 1:
-        iMedian = int(len(number) / 2)
-        median = number[iMedian]
-    else:
-        iMedian1 = int(len(number) // 2)
-        iMedian2 = int(len(number) // 2 - 1)
-        median = (number[iMedian1] + number[iMedian2]) / 2
-    return median
+    return calculatedMedian
 
-
+# Create main function
 def main():
-    # declare lists
+    # Create empty list; initialize sRepeat variable
     lstPropertyPrices = []
-    lstData = getDataInput()
-    # declare dictionaries
-    dictCity = {}
-    dictZip = {}
-    dictType = {}
-    # Scan through lstData; heading already removed
-    for record in lstData:
-        record[8] = float(record[8])
-        lstPropertyPrices.append(record[8])
-        # 2nd column of lstData (city) for dict; numbered 1 starting at 0
-        dictCity[record[1]] = dictCity.get(record[1], 0) + record[8]
-        # 3rd column of lstData (zip) for dict; numbered 2 starting at 0
-        dictZip[record[2]] = dictZip.get(record[2], 0) + record[8]
-        # 8th column of lstData (property type) for dict; numbered 7 starting at 0
-        dictType[record[7]] = dictType.get(record[7], 0) + record[8]
+    sRepeat = "Y"
 
-    print("Price Summary by City:")
-    for city, price in dictCity.items():
-        print(f'{city:15s}{price:15,.2f}')
-    print("\nPrice Summary by Area Code:")
-    for zip, price in dictZip.items():
-        print(f'{zip:15s}{price:15,.2f}')
-    print("\nPrice Summary by Property Type:")
-    for type, price in dictType.items():
-        print(f'{type:15s}{price:15,.2f}')
+    while sRepeat in tplYES_NO_TUPLE:
+        # Validate property sales value; append list
+        fPropertyPrice = validate.inputFloatValidation('Enter property sales value: ', 0.01)
+        lstPropertyPrices.append(fPropertyPrice)
 
+        # Go again?
+        sRepeat = validate.inputStringValidation('Enter another value Y or N ').upper()
+        # Make sure Y or N is inputted
+        while sRepeat not in tplYES_NO_TUPLE:
+            sRepeat = validate.inputStringValidation('Enter another value Y or N ').upper()
+            continue
+        # then end when user inputs 'N'
+        if sRepeat == tplYES_NO_TUPLE[1]:
+            break
+
+    # Sort list
     lstPropertyPrices.sort()
-    print("\nOverall Price Summary:")
-    print(f"{'Minimum:':15s}{min(lstPropertyPrices):15,.2f}")
-    print(f"{'Maximum:':15s}{max(lstPropertyPrices):15,.2f}")
-    print(f"{'Total:  ':15s}{fsum(lstPropertyPrices):15,.2f}")
-    print(f"{'Average:':15s}{fsum(lstPropertyPrices) / len(lstPropertyPrices):15,.2f}")
-    print(f"{'Median: ':15s}{getMedian(lstPropertyPrices):15,.2f}")
 
+    # Print to screen each real estate property as a newline
+    for element in lstPropertyPrices:
+        # Create incrementer
+        n = int(lstPropertyPrices.index(element))
+        # Print with increment
+        print(f'Property {n + 1}\t${element:,.2f} ')
+
+    # Calculations
+    fMedian = getMedian(lstPropertyPrices)
+    fMinimum = lstPropertyPrices[0]
+    fMaximum = lstPropertyPrices[-1]
+    fTotal = sum(lstPropertyPrices)
+    fAverage = fTotal / len(lstPropertyPrices)
+    fCommission = fTotal * fCOMMISSION_PERCENTAGE
+
+    # Print to screen (added a Newline for the sex appeal)
+    print()
+    print(f'Minimum     $ {fMinimum:,.2f}')
+    print(f'Maximum:    $ {fMaximum:,.2f}')
+    print(f'Total:      $ {fTotal:,.2f}')
+    print(f'Average:    $ {fAverage:,.2f}')
+    print(f'Median:     $ {fMedian:,.2f}')
+    print(f'Commission: $ {fCommission:,.2f}')
 
 main()
